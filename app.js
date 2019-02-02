@@ -12,7 +12,7 @@ require('dotenv').config(); // https://github.com/motdotla/dotenv#readme
 const Wechat = require('wechat-jssdk'); // https://github.com/JasonBoy/wechat-jssdk#readme
 const wechatConfig = {
   //set your oauth redirect url, defaults to localhost
-  // "wechatRedirectUrl": "http://yourdomain.com/wechat/oauth-callback",
+  // "wechatRedirectUrl": "http://localhost:4000/wechat/oauth-callback",
   //"wechatToken": "wechat_token", //not necessary required
   "appId": process.env.APP_ID,
   "appSecret": process.env.APP_SECRET,
@@ -25,6 +25,7 @@ const wechatConfig = {
   //default payment notify url
   // paymentNotifyUrl: `http://your.domain.com/api/wechat/payment/`,
 }
+
 
 const wx = new Wechat(wechatConfig);
 
@@ -39,8 +40,12 @@ app.use(cors());
 // Generate Signature
 app.get('/get-signature', async (req, res) => {
   //use async/await
-  const signatureData = await wx.jssdk.getSignature(req.query.url);
-  res.json(signatureData);
+  try {
+    const signatureData = await wx.jssdk.getSignature(req.query.url);
+    res.json(signatureData);
+  } catch (error) {
+    res.sendStatus(500).json(error);
+  }
 });
 
 // catch 404 and forward to error handler
