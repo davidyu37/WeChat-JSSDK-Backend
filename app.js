@@ -12,7 +12,7 @@ require('dotenv').config(); // https://github.com/motdotla/dotenv#readme
 const Wechat = require('wechat-jssdk'); // https://github.com/JasonBoy/wechat-jssdk#readme
 const wechatConfig = {
   //set your oauth redirect url, defaults to localhost
-  // "wechatRedirectUrl": "http://yourdomain.com/wechat/oauth-callback",
+  "wechatRedirectUrl": "http://yourdomain.com/wechat/oauth-callback",
   //"wechatToken": "wechat_token", //not necessary required
   "appId": process.env.APP_ID,
   "appSecret": process.env.APP_SECRET,
@@ -41,6 +41,25 @@ app.get('/get-signature', async (req, res) => {
   //use async/await
   const signatureData = await wx.jssdk.getSignature(req.query.url);
   res.json(signatureData);
+});
+
+// Send User to WeChat Authentication Link
+app.get('/auth-link', function(req, res) {
+  // snsUserBaseUrl <- This gets user's OpenID without permission popup
+  // snsUserInfoUrl <- This gets more user information with permission popop
+  res.redirect(wx.oauth.snsUserBaseUrl);
+});
+
+// Get User Information
+app.get('/wechat/oauth-callback', function (req, res) {
+  //得到code，获取用户信息
+  wx.oauth.getUserInfo(req.query.code)
+          .then(function(userProfile) {
+            console.log(userProfile)
+            res.render("demo", {
+              wechatInfo: userProfile
+            });
+          });
 });
 
 // catch 404 and forward to error handler
