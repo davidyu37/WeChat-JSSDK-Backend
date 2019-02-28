@@ -8,11 +8,13 @@ var cors = require('cors')
 // Load your environment variables
 require('dotenv').config(); // https://github.com/motdotla/dotenv#readme
 
+const host = 'http://192.168.1.101'
+
 // Load Wechat Stuff
 const Wechat = require('wechat-jssdk'); // https://github.com/JasonBoy/wechat-jssdk#readme
 const wechatConfig = {
   //set your oauth redirect url, defaults to localhost
-  "wechatRedirectUrl": "http://192.168.1.102:4000/oauth-callback",
+  "wechatRedirectUrl": `${host}:4000/oauth-callback`,
   //"wechatToken": "wechat_token", //not necessary required
   "appId": process.env.APP_ID,
   "appSecret": process.env.APP_SECRET,
@@ -52,16 +54,13 @@ app.get('/auth-link', function(req, res) {
 
 // Get User Information
 app.get('/oauth-callback', function (req, res) {
-  //得到code，获取用户信息
-  // console.log(req.query);
+  // Get code and get user info
   wx.oauth.getUserInfo(req.query.code)
           .then(function(userProfile) {
             console.log(userProfile)
             const userInfo = JSON.stringify(userProfile);
-            // res.status(200).json('ok');
-            res.redirect(`http://192.168.1.102:3000?user=${userInfo}`);
+            res.redirect(`${host}:3000?user=${encodeURIComponent(userInfo)}`);
           });
-  // res.redirect(`http://192.168.1.102:3000?user=${req.query}`);
 });
 
 // catch 404 and forward to error handler
